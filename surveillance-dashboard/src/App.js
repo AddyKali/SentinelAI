@@ -82,6 +82,7 @@ G.textContent = `
     transform:translate(-50%,-50%);
     transition:transform 0.1s ease, width 0.2s, height 0.2s, background 0.2s;
     mix-blend-mode:difference;
+    box-shadow:0 0 12px #ff000066, 0 0 24px #ff000022;
   }
   .custom-cursor-ring {
     position:fixed; width:32px; height:32px;
@@ -90,8 +91,12 @@ G.textContent = `
     transform:translate(-50%,-50%);
     transition:all 0.18s ease;
   }
-  .cursor-hover .custom-cursor { width:16px; height:16px; background:#ff3333; }
+  .cursor-hover .custom-cursor { width:16px; height:16px; background:#ff3333; box-shadow:0 0 20px #ff000088; }
   .cursor-hover .custom-cursor-ring { width:48px; height:48px; border-color:#ff000099; }
+  .cursor-trail-dot {
+    position:fixed; border-radius:50%; pointer-events:none; z-index:99997;
+    animation: mouseTrail 0.6s ease-out forwards;
+  }
 
   .nav-link {
     font-family:'Barlow Condensed',sans-serif; font-weight:600;
@@ -174,9 +179,18 @@ function CustomCursor() {
   const ringRef = useRef(null);
   const pos     = useRef({x:0, y:0});
   const ring    = useRef({x:0, y:0});
-  const hover   = useRef(false);
+  const lastTrail = useRef(0);
 
   useEffect(()=>{
+    const spawnTrail = (x, y) => {
+      const d = document.createElement('div');
+      d.className = 'cursor-trail-dot';
+      const size = 4 + Math.random() * 4;
+      d.style.cssText = `left:${x}px;top:${y}px;width:${size}px;height:${size}px;background:rgba(255,0,0,${0.3+Math.random()*0.3});transform:translate(-50%,-50%)`;
+      document.body.appendChild(d);
+      setTimeout(() => d.remove(), 600);
+    };
+
     const onMove = e => {
       pos.current = {x:e.clientX, y:e.clientY};
       if (dotRef.current) {
@@ -185,9 +199,14 @@ function CustomCursor() {
       }
       const el = document.elementFromPoint(e.clientX, e.clientY);
       const isHov = el && (el.tagName==='BUTTON'||el.tagName==='A'||el.closest('button')||el.closest('a')||el.closest('.feature-card'));
-      hover.current = !!isHov;
       if (dotRef.current)  dotRef.current.className  = `custom-cursor${isHov?' cursor-hover':''}`;
       if (ringRef.current) ringRef.current.className = `custom-cursor-ring${isHov?' cursor-hover':''}`;
+
+      const now = Date.now();
+      if (now - lastTrail.current > 40) {
+        spawnTrail(e.clientX, e.clientY);
+        lastTrail.current = now;
+      }
     };
     let raf;
     const lerp = () => {
@@ -214,6 +233,7 @@ function CustomCursor() {
 function ParticleField() {
   const canvasRef = useRef(null);
   const mouse     = useRef({x:-999,y:-999});
+  const click     = useRef(null);
 
   useEffect(()=>{
     const canvas = canvasRef.current;
@@ -227,37 +247,91 @@ function ParticleField() {
     const onMove = e=>{ mouse.current={x:e.clientX,y:e.clientY}; };
     window.addEventListener('mousemove',onMove);
 
-    // particles
-    const particles = Array.from({length:80},()=>({
+    const onClick = e=>{ click.current={x:e.clientX,y:e.clientY,t:Date.now()}; };
+    window.addEventListener('click',onClick);
+
+    const particles = Array.from({length:120},()=>({
       x: Math.random()*W, y: Math.random()*H,
-      vx:(Math.random()-0.5)*0.3, vy:(Math.random()-0.5)*0.3,
-      size: Math.random()*1.5+0.5,
-      opacity: Math.random()*0.4+0.1,
+      vx:(Math.random()-0.5)*0.4, vy:(Math.random()-0.5)*0.4,
+      size: Math.random()*2+0.5,
+      opacity: Math.random()*0.5+0.1,
+      baseOpacity: Math.random()*0.5+0.1,
     }));
 
     let raf;
     const draw = ()=>{
       ctx.clearRect(0,0,W,H);
+      const mx=mouse.current.x, my=mouse.current.y;
 
-      // move + draw particles
+      // click ripple
+      if (click.current) {
+        const age = (Date.now()-click.current.t)/1000;
+        if (age < 0.8) {
+          const r = age * 200;
+          const alpha = 0.4*(1-age/0.8);
+          ctx.beginPath();
+          ctx.arc(click.current.x, click.current.y, r, 0, Math.PI*2);
+          ctx.strokeStyle=`rgba(204,0,0,${alpha})`;
+          ctx.lineWidth=1.5;
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(click.current.x, click.current.y, r*0.6, 0, Math.PI*2);
+          ctx.strokeStyle=`rgba(255,50,50,${alpha*0.5})`;
+          ctx.lineWidth=1;
+          ctx.stroke();
+        } else { click.current=null; }
+      }
+
+      // mouse glow
+      if (mx > 0 && my > 0) {
+        const grd = ctx.createRadialGradient(mx,my,0,mx,my,150);
+        grd.addColorStop(0,'rgba(204,0,0,0.06)');
+        grd.addColorStop(1,'rgba(204,0,0,0)');
+        ctx.fillStyle=grd;
+        ctx.fillRect(mx-150,my-150,300,300);
+      }
+
       particles.forEach(p=>{
         p.x += p.vx; p.y += p.vy;
         if (p.x<0) p.x=W; if (p.x>W) p.x=0;
         if (p.y<0) p.y=H; if (p.y>H) p.y=0;
 
-        // mouse repulsion
-        const dx = p.x - mouse.current.x;
-        const dy = p.y - mouse.current.y;
+        const dx = p.x - mx;
+        const dy = p.y - my;
         const dist = Math.sqrt(dx*dx+dy*dy);
-        if (dist < 120) {
-          const force = (120-dist)/120;
-          p.x += dx/dist * force * 2;
-          p.y += dy/dist * force * 2;
+
+        // close particles get attracted, far ones repelled
+        if (dist < 180) {
+          const force = (180-dist)/180;
+          if (dist < 60) {
+            // repel very close
+            p.x += dx/dist * force * 3;
+            p.y += dy/dist * force * 3;
+          } else {
+            // attract gently
+            p.x -= dx/dist * force * 0.8;
+            p.y -= dy/dist * force * 0.8;
+          }
+          p.opacity = p.baseOpacity + force * 0.5;
+          p.size = (Math.random()*2+0.5) + force * 2;
+        } else {
+          p.opacity += (p.baseOpacity - p.opacity) * 0.05;
+        }
+
+        // click burst
+        if (click.current) {
+          const cdx=p.x-click.current.x, cdy=p.y-click.current.y;
+          const cd=Math.sqrt(cdx*cdx+cdy*cdy);
+          const age=(Date.now()-click.current.t)/1000;
+          if (cd<200 && age<0.3) {
+            const burst=(200-cd)/200*(1-age/0.3)*6;
+            p.x+=cdx/cd*burst; p.y+=cdy/cd*burst;
+          }
         }
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
-        ctx.fillStyle = `rgba(180,20,20,${p.opacity})`;
+        ctx.fillStyle = `rgba(200,20,20,${p.opacity})`;
         ctx.fill();
       });
 
@@ -267,12 +341,25 @@ function ParticleField() {
           const dx=particles[i].x-particles[j].x;
           const dy=particles[i].y-particles[j].y;
           const d=Math.sqrt(dx*dx+dy*dy);
-          if (d<100){
+          if (d<110){
             ctx.beginPath();
             ctx.moveTo(particles[i].x,particles[i].y);
             ctx.lineTo(particles[j].x,particles[j].y);
-            ctx.strokeStyle=`rgba(150,10,10,${0.15*(1-d/100)})`;
+            ctx.strokeStyle=`rgba(150,10,10,${0.18*(1-d/110)})`;
             ctx.lineWidth=0.5;
+            ctx.stroke();
+          }
+        }
+        // connect particles near cursor
+        if (mx>0) {
+          const dx=particles[i].x-mx, dy=particles[i].y-my;
+          const d=Math.sqrt(dx*dx+dy*dy);
+          if (d<140) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x,particles[i].y);
+            ctx.lineTo(mx,my);
+            ctx.strokeStyle=`rgba(255,30,30,${0.2*(1-d/140)})`;
+            ctx.lineWidth=0.8;
             ctx.stroke();
           }
         }
@@ -285,6 +372,7 @@ function ParticleField() {
     return ()=>{
       window.removeEventListener('resize',onResize);
       window.removeEventListener('mousemove',onMove);
+      window.removeEventListener('click',onClick);
       cancelAnimationFrame(raf);
     };
   },[]);
@@ -1010,8 +1098,13 @@ function Dashboard({ onBack }) {
   const [realtimeH, setRealtimeH] = useState([]);
   const [perSecH,   setPerSecH]   = useState([]);
   const [per10sH,   setPer10sH]   = useState([]);
+  const [isLive,    setIsLive]    = useState(false);
+  const [sourceInput,setSourceInput]=useState('');
+  const [currentSource,setCurrentSource]=useState('VIDEO');
+  const [switching, setSwitching] = useState(false);
 
   const wsRef=useRef(null), prev=useRef([]), sb=useRef([]), s10=useRef([]), lt=useRef(0), l10=useRef(0);
+  const frameRef=useRef(null);
 
   useEffect(()=>{
     function connect(){
@@ -1020,7 +1113,10 @@ function Dashboard({ onBack }) {
       ws.onclose=()=>{setConnected(false);setTimeout(connect,2000);};
       ws.onmessage=e=>{
         const d=JSON.parse(e.data);
-        if(d.frame)  setFrame(`data:image/jpeg;base64,${d.frame}`);
+        if(d.frame && frameRef.current) {
+          frameRef.current.src=`data:image/jpeg;base64,${d.frame}`;
+          if(!frame) setFrame(true);
+        }
         if(d.alerts) setAlerts(d.alerts);
         if(d.zones)  setZones(d.zones);
         if(d.total_persons !==undefined) setPersons(d.total_persons);
@@ -1029,6 +1125,7 @@ function Dashboard({ onBack }) {
         if(d.surge  !==undefined) setSurge(d.surge);
         if(d.modes)  setModes(d.modes);
         if(d.setup_done!==undefined) setSetupDone(d.setup_done);
+        if(d.current_source) setCurrentSource(d.current_source);
         const now=Date.now();
         const maxT=(d.zones||[]).reduce((a,z)=>Math.max(a,threatToScore(z.threat||'LOW')),1);
         const hasAlert=(d.alerts||[]).length>prev.current.length;
@@ -1062,6 +1159,19 @@ function Dashboard({ onBack }) {
     const v=!modes[m];
     await fetch(`${API_URL}/set_mode`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:m,value:v})});
     setModes(p=>({...p,[m]:v}));
+  };
+  const switchSource=async(live)=>{
+    setSwitching(true);
+    setIsLive(live);
+    await fetch(`${API_URL}/switch_source`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'source',value:live})});
+    setTimeout(()=>setSwitching(false),2000);
+  };
+  const changeSource=async()=>{
+    if(!sourceInput.trim()) return;
+    setSwitching(true);
+    await fetch(`${API_URL}/change_source`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({source:sourceInput.trim()})});
+    setSourceInput('');
+    setTimeout(()=>setSwitching(false),2000);
   };
 
   const ht=zones.reduce((a,z)=>{if(z.threat==='HIGH')return'HIGH';if(z.threat==='MEDIUM'&&a!=='HIGH')return'MEDIUM';return a;},'LOW');
@@ -1108,9 +1218,8 @@ function Dashboard({ onBack }) {
               </div>
               {setupDone&&<ThreatLvl level={ht}/>}
             </div>
-            {frame
-              ? <img src={frame} alt="feed" style={{width:'100%',display:'block',minHeight:'300px',objectFit:'cover'}}/>
-              : <div style={{minHeight:'340px',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:'12px'}}>
+            <img ref={frameRef} alt="feed" style={{width:'100%',display:frame?'block':'none',minHeight:'300px',objectFit:'cover'}}/>
+            {!frame&&<div style={{minHeight:'340px',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:'12px'}}>
                   <div style={{width:40,height:40,border:'1px solid #cc000033',borderTop:'1px solid #cc0000',borderRadius:'50%',animation:'spin 1s linear infinite'}}/>
                   <div style={{fontFamily:"'Share Tech Mono',monospace",fontSize:'0.65rem',letterSpacing:'0.2em',color:'#4a3030'}}>INITIALIZING FEED...</div>
                 </div>
@@ -1177,6 +1286,34 @@ function Dashboard({ onBack }) {
                   <div style={{fontFamily:"'Anton',sans-serif",fontSize:'0.75rem',letterSpacing:'0.1em',color:a?'#cc0000':'#4a3030',animation:a?'pulse-r 1s ease-in-out infinite':'none'}}>{a?'ACTIVE':'CLEAR'}</div>
                 </div>
               ))}
+            </div>
+          </div>
+
+          <div style={{background:'rgba(10,8,8,0.95)',border:'1px solid #4a3030',position:'relative',padding:'12px'}}>
+            <PanelC c='#4a3030' s={6}/>
+            <SLabel>SOURCE CONTROL</SLabel>
+            <div style={{height:'1px',background:'linear-gradient(90deg,#cc000033,transparent)',marginBottom:'10px'}}/>
+            <div style={{display:'flex',gap:'4px',marginBottom:'8px'}}>
+              {[['VIDEO',false],['LIVE',true]].map(([label,live])=>(
+                <button key={label} onClick={()=>switchSource(live)} disabled={switching} style={{
+                  flex:1,fontFamily:"'Share Tech Mono',monospace",fontSize:'0.6rem',letterSpacing:'0.15em',
+                  padding:'6px 0',border:`1px solid ${isLive===live?'#cc000066':'#4a3030'}`,
+                  background:isLive===live?'#cc000022':'transparent',
+                  color:isLive===live?'#cc4444':'#4a3030',cursor:'pointer',
+                  transition:'all 0.2s',
+                }}>{label}</button>
+              ))}
+            </div>
+            <div style={{display:'flex',gap:'4px'}}>
+              <input value={sourceInput} onChange={e=>setSourceInput(e.target.value)}
+                onKeyDown={e=>{if(e.key==='Enter')changeSource();}}
+                placeholder="URL or file path..."
+                style={{flex:1,background:'#0a0808',border:'1px solid #4a3030',color:'#c8baba',padding:'5px 8px',fontFamily:"'Share Tech Mono',monospace",fontSize:'0.58rem',outline:'none'}}/>
+              <button onClick={changeSource} disabled={switching} style={{fontFamily:"'Share Tech Mono',monospace",fontSize:'0.55rem',padding:'5px 8px',border:'1px solid #cc000044',background:'#cc000011',color:'#cc4444',cursor:'pointer'}}>GO</button>
+            </div>
+            <div style={{marginTop:'6px',fontFamily:"'Share Tech Mono',monospace",fontSize:'0.5rem',color:'#4a3030',letterSpacing:'0.1em',display:'flex',alignItems:'center',gap:'6px'}}>
+              <span style={{width:4,height:4,borderRadius:'50%',background:switching?'#cc6600':'#339933',animation:switching?'pulse-r 0.5s ease-in-out infinite':'none',display:'inline-block'}}/>
+              {switching?'SWITCHING...':currentSource}
             </div>
           </div>
 

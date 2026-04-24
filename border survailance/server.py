@@ -22,6 +22,7 @@ shared_state = {
     "surge":          False,
     "modes":          {'loitering': True, 'night': True, 'surge': True},
     "setup_done":     False,
+    "current_source": "VIDEO",
 }
 pending_commands = []
 
@@ -37,6 +38,9 @@ class TripwireData(BaseModel):
 class ModeData(BaseModel):
     mode: str
     value: bool
+
+class SourceData(BaseModel):
+    source: str
 
 @app.post("/add_zone")
 def add_zone(zone: ZoneData):
@@ -64,6 +68,21 @@ def stop_detection():
 def set_mode(data: ModeData):
     pending_commands.append({'type': 'set_mode', 'mode': data.mode, 'value': data.value})
     return {"status": "ok"}
+
+@app.post("/switch_source")
+def switch_source(data: ModeData):
+    is_live = data.value
+    pending_commands.append({'type': 'switch_source', 'value': is_live})
+    shared_state["current_source"] = "LIVE" if is_live else "VIDEO"
+    return {"status": "ok", "source": shared_state["current_source"]}
+
+@app.post("/change_source")
+def change_source(data: SourceData):
+    src = data.source.strip()
+    is_live = src.startswith("http") or src.startswith("rtsp")
+    pending_commands.append({'type': 'change_source', 'source': src, 'value': is_live})
+    shared_state["current_source"] = src if is_live else src
+    return {"status": "ok", "source": src}
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):

@@ -13,11 +13,12 @@ VIDEO_FILE  = 'test.mp4'
 LIVE_URL    = "https://www.youtube.com/watch?v=8JCk5M_xrBs"
 
 DETECT_EVERY_N_FRAMES = 2   # run YOLO every N frames (higher = faster but less smooth)
-PUSH_EVERY_N_FRAMES   = 3   # push frame to dashboard every N frames
+PUSH_EVERY_N_FRAMES   = 2   # push frame to dashboard every N frames
 # ══════════════════════════════════════════════════════════════════════════════
 
-use_live    = False
-source_lock = threading.Lock()
+use_live      = False
+custom_source = None
+source_lock   = threading.Lock()
 
 def get_stream_url(url):
     try:
@@ -34,6 +35,22 @@ def get_stream_url(url):
         return None
 
 def open_capture(live=False):
+    if custom_source:
+        src = custom_source
+        if src.startswith('http') or src.startswith('rtsp'):
+            url = get_stream_url(src) if 'youtube.com' in src or 'youtu.be' in src else src
+            if url:
+                cap = cv2.VideoCapture(url)
+                if cap.isOpened():
+                    print(f"Custom source opened: {src}")
+                    return cap, True
+            print(f"Custom source failed: {src}. Falling back.")
+        else:
+            cap = cv2.VideoCapture(src)
+            if cap.isOpened():
+                print(f"Custom video opened: {src}")
+                return cap, False
+            print(f"Custom file not found: {src}. Falling back.")
     if live:
         url = get_stream_url(LIVE_URL)
         if url:
@@ -45,9 +62,9 @@ def open_capture(live=False):
     print(f"Opening video file: {VIDEO_FILE}")
     return cv2.VideoCapture(VIDEO_FILE), False
 
-def push_to_dashboard(frame, zones, total_persons, total_vehicles, night, surge, modes):
+def push_to_dashboard(frame, zones, total_persons, total_vehicles, night, surge, modes, source_label):
     try:
-        _, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 65])
+        _, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 70])
         shared_state["frame"]          = base64.b64encode(buffer).decode('utf-8')
         shared_state["alerts"]         = [{'time': a['time'], 'msg': a['msg']} for a in alert_log]
         shared_state["zones"]          = [
@@ -60,6 +77,7 @@ def push_to_dashboard(frame, zones, total_persons, total_vehicles, night, surge,
         shared_state["night"]          = night
         shared_state["surge"]          = surge
         shared_state["modes"]          = modes.copy()
+        shared_state["current_source"] = source_label
     except Exception as e:
         print(f"Dashboard push error: {e}")
 
@@ -228,11 +246,24 @@ def reset_detection():
     shared_state["total_vehicles"] = 0
     print("Detection reset.")
 
+def soft_reset_detection():
+    """Reset tracking state but keep zones, tripwires, and alerts."""
+    global loiter_start, loitering_ids, prev_positions, crossed_ids
+    global person_count_history, path_history, suspicious_ids
+    loiter_start         = {}
+    loitering_ids        = set()
+    prev_positions       = {}
+    crossed_ids          = set()
+    person_count_history = []
+    path_history         = {}
+    suspicious_ids       = set()
+    print("Soft reset (zones preserved).")
+
 class SwitchSource(Exception):
     pass
 
 def process_commands():
-    global zone_counter, tripwire_counter, use_live
+    global zone_counter, tripwire_counter, use_live, custom_source
     while pending_commands:
         cmd = pending_commands.pop(0)
         if cmd['type'] == 'add_zone':
@@ -253,10 +284,18 @@ def process_commands():
             add_alert(f"Tripwire '{d['name']}' created", (0, 255, 255))
         elif cmd['type'] == 'set_mode':
             modes[cmd['mode']] = cmd['value']
+        elif cmd['type'] == 'start_detection':
+            shared_state['setup_done'] = True
         elif cmd['type'] == 'stop_detection':
             raise StopIteration
         elif cmd['type'] == 'switch_source':
+            custom_source = None
             use_live = cmd['value']
+            raise SwitchSource
+        elif cmd['type'] == 'change_source':
+            custom_source = cmd['source']
+            use_live = cmd.get('value', False)
+            add_alert(f"Source changed: {custom_source}")
             raise SwitchSource
 
 def input_listener():
@@ -331,7 +370,8 @@ while True:
         time.sleep(0.05)
 
     print("Detection started!")
-    cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+    if not is_live:
+        cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
     # ── Detection phase ────────────────────────────────────────────────────────
     frame_count  = 0
@@ -477,7 +517,7 @@ while True:
             # ── Push to dashboard every N frames only ──────────────────────
             if frame_count % PUSH_EVERY_N_FRAMES == 0:
                 push_to_dashboard(frame, zones, total_persons, total_vehicles,
-                                  night, surge, modes)
+                                  night, surge, modes, source_label)
 
     except StopIteration:
         print("Detection stopped. Back to setup mode.")
@@ -485,9 +525,133 @@ while True:
         continue
 
     except SwitchSource:
-        print("Source switch during detection. Restarting...")
+        print("Source switch during detection.")
         cap.release()
-        continue
+        soft_reset_detection()
+        cap, is_live = open_capture(use_live)
+        ret, first_frame = cap.read()
+        if not ret or first_frame is None:
+            print("New source failed. Falling back.")
+            cap.release()
+            cap, is_live = open_capture(False)
+            ret, first_frame = cap.read()
+        first_frame = cv2.resize(first_frame, (1280, 720))
+        source_label = "LIVE" if is_live else "VIDEO"
+        shared_state["current_source"] = source_label
+        add_alert(f"Source switched to {source_label}")
+        print(f"Source switched to: {source_label}")
+        # Jump back to detection phase
+        frame_count = 0
+        last_results = None
+        try:
+            while cap.isOpened():
+                ret, frame = cap.read()
+                if not ret:
+                    if is_live:
+                        print("Live stream dropped. Reconnecting...")
+                        cap.release()
+                        cap, is_live = open_capture(use_live)
+                        continue
+                    else:
+                        cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                        continue
+                process_commands()
+                frame_count += 1
+                frame = cv2.resize(frame, (1280, 720))
+                if frame_count % DETECT_EVERY_N_FRAMES == 0:
+                    last_results = model.track(frame, verbose=False, conf=0.3,
+                                               classes=ALLOWED_CLASSES, persist=True)
+                results = last_results
+                if results is None:
+                    if frame_count % PUSH_EVERY_N_FRAMES == 0:
+                        push_to_dashboard(frame, zones, 0, 0, False, False, modes, source_label)
+                    continue
+                night = is_night(frame) if modes['night'] else False
+                for zone in zones:
+                    zone['persons'] = 0; zone['vehicles'] = 0; zone['loiterer'] = False
+                total_persons = 0; total_vehicles = 0
+                draw_all_zones(frame)
+                draw_all_tripwires(frame)
+                cv2.putText(frame, f"SOURCE: {source_label}",
+                            (frame.shape[1]-200, 30),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                            (0,255,0) if is_live else (0,165,255), 1)
+                if results[0].boxes is not None and results[0].boxes.id is not None:
+                    for box, track_id in zip(results[0].boxes, results[0].boxes.id):
+                        cls = int(box.cls[0]); track_id = int(track_id)
+                        x1,y1,x2,y2 = map(int, box.xyxy[0])
+                        cx,cy = (x1+x2)//2, (y1+y2)//2
+                        if track_id not in path_history: path_history[track_id] = []
+                        path_history[track_id].append((cx,cy))
+                        if len(path_history[track_id]) > PATH_HISTORY_LEN: path_history[track_id].pop(0)
+                        was_suspicious = track_id in suspicious_ids
+                        if detect_zigzag(path_history[track_id]):
+                            suspicious_ids.add(track_id)
+                            if not was_suspicious:
+                                label = "Person" if cls==0 else "Vehicle"
+                                add_alert(f"Suspicious movement! {label} ID:{track_id}")
+                        if track_id in prev_positions and track_id not in crossed_ids:
+                            px,py = prev_positions[track_id]
+                            for tw in tripwires:
+                                if segments_intersect((px,py),(cx,cy), tw['p1'], tw['p2']):
+                                    crossed_ids.add(track_id)
+                                    label = "Person" if cls==0 else "Vehicle"
+                                    add_alert(f"{label} crossed {tw['name']}!")
+                        prev_positions[track_id] = (cx,cy)
+                        in_any_zone = False
+                        for zone in zones:
+                            if point_in_zone(cx,cy,zone['points']):
+                                in_any_zone = True
+                                if cls==0: zone['persons']+=1
+                                else:      zone['vehicles']+=1
+                                if modes['loitering']:
+                                    key_id = f"{zone['name']}_{track_id}"
+                                    if key_id not in loiter_start: loiter_start[key_id] = time.time()
+                                    elif time.time()-loiter_start[key_id]>LOITER_SECONDS:
+                                        loitering_ids.add(track_id); zone['loiterer']=True
+                                        alerted_key = f"loiter_alerted_{track_id}"
+                                        if alerted_key not in loiter_start:
+                                            add_alert(f"Loitering in {zone['name']}! ID:{track_id}")
+                                            loiter_start[alerted_key] = time.time()
+                                break
+                        if len(path_history[track_id])>1:
+                            trail_color = (0,0,255) if track_id in suspicious_ids else (100,100,255)
+                            draw_path_trail(frame, path_history[track_id], trail_color)
+                        is_suspicious = track_id in suspicious_ids
+                        is_loitering = track_id in loitering_ids
+                        if is_suspicious: box_color, tag = (0,0,255), " SUSPICIOUS!"
+                        elif is_loitering: box_color, tag = (0,0,255), " LOITER!"
+                        elif in_any_zone: box_color, tag = (0,165,255), ""
+                        else:
+                            box_color = (0,255,0) if cls==0 else (255,255,0); tag=""
+                        cv2.rectangle(frame,(x1,y1),(x2,y2),box_color,2)
+                        label = "person" if cls==0 else "vehicle"
+                        cv2.putText(frame,f"{label}#{track_id}{tag}",(x1,y1-5),cv2.FONT_HERSHEY_SIMPLEX,0.42,box_color,1)
+                        if track_id in prev_positions:
+                            arrow_color = (0,0,255) if is_suspicious else (0,255,255)
+                            draw_direction_arrow(frame, prev_positions[track_id], (cx,cy), arrow_color)
+                        if in_any_zone:
+                            if cls==0: total_persons+=1
+                            else:      total_vehicles+=1
+                for zone in zones:
+                    old_threat = zone.get('threat','LOW')
+                    threat, _ = get_threat_level(zone['persons'],zone['vehicles'],zone.get('loiterer',False),night,
+                        detect_surge(person_count_history,zone['persons']) if modes['surge'] else False)
+                    zone['threat'] = threat
+                    if threat != old_threat:
+                        add_alert(f"{zone['name']} threat: {old_threat} -> {threat}", THREAT_COLORS[threat])
+                person_count_history.append(total_persons)
+                surge = detect_surge(person_count_history, total_persons) if modes['surge'] else False
+                if frame_count % PUSH_EVERY_N_FRAMES == 0:
+                    push_to_dashboard(frame, zones, total_persons, total_vehicles, night, surge, modes, source_label)
+        except StopIteration:
+            print("Detection stopped. Back to setup mode.")
+            cap.release()
+            continue
+        except SwitchSource:
+            print("Another source switch. Restarting loop...")
+            cap.release()
+            continue
 
 cap.release()
 log_file.close()
