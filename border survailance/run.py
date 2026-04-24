@@ -6,7 +6,7 @@ import socket
 import webbrowser
 import uvicorn
 
-BUILD_PATH  = r"C:\Users\STUDY\Desktop\surveillance-dashboard\build"
+BUILD_PATH  = os.path.join(os.path.dirname(__file__), "..", "surveillance-dashboard", "build")
 STATIC_PATH = os.path.join(os.path.dirname(__file__), "static")
 
 if os.path.exists(BUILD_PATH):

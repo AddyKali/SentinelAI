@@ -1,0 +1,54 @@
+# ── Python ─────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# ── Virtual environments ───────────────────────────
+venv/
+.venv/
+env/
+ENV/
+
+# ── YOLOv8 model weights (large files) ────────────
+*.pt
+
+# ── Video files (large) ───────────────────────────
+*.mp4
+*.avi
+*.mkv
+*.mov
+
+# ── Alert logs ─────────────────────────────────────
+alert_log_*.txt
+
+# ── Node.js ────────────────────────────────────────
+node_modules/
+package-lock.json
+
+# ── React build output ─────────────────────────────
+surveillance-dashboard/build/
+border survailance/static/
+
+# ── Environment & IDE ──────────────────────────────
+.env
+.env.local
+.env.*.local
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── OS files ───────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Test logs ──────────────────────────────────────
+border survailance/test logs/
