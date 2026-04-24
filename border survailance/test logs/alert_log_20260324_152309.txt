@@ -1,0 +1,15 @@
+[15:23:19] Zone 'SECTOR-A' created
+[15:23:39] Loitering in SECTOR-A! ID:2
+[15:23:39] SECTOR-A threat: LOW -> MEDIUM
+[15:23:40] SECTOR-A threat: MEDIUM -> LOW
+[15:23:43] SECTOR-A threat: LOW -> MEDIUM
+[15:23:52] Loitering in SECTOR-A! ID:1
+[15:24:43] Zone 'SECTOR-A' created
+[15:24:50] Zone 'SECTOR-B' created
+[15:24:56] Tripwire 'WIRE-1' created
+[15:25:24] Loitering in SECTOR-A! ID:34
+[15:25:24] SECTOR-A threat: LOW -> MEDIUM
+[15:25:25] Loitering in SECTOR-A! ID:35
+[15:25:27] Person crossed WIRE-1!
+[15:25:31] Person crossed WIRE-1!
+[15:25:38] Person crossed WIRE-1!

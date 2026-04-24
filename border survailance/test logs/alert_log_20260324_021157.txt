@@ -1,0 +1,7 @@
+[02:12:24] Zone 'SECTOR-A' created
+[02:12:32] Zone 'SECTOR-B' created
+[02:12:40] Zone 'SECTOR-C' created
+[02:12:49] Zone 'SECTOR-D' created
+[02:13:52] Loitering in SECTOR-A! ID:2
+[02:13:52] SECTOR-A threat: LOW -> MEDIUM
+[02:13:57] Loitering in SECTOR-A! ID:1

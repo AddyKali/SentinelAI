@@ -1,0 +1,22 @@
+[13:37:36] Zone 'SECTOR-A' created
+[13:39:22] Loitering in SECTOR-A! ID:2
+[13:39:22] SECTOR-A threat: LOW -> MEDIUM
+[13:39:31] Loitering in SECTOR-A! ID:12
+[13:39:42] SECTOR-A threat: MEDIUM -> LOW
+[13:39:54] Loitering in SECTOR-A! ID:13
+[13:39:54] SECTOR-A threat: LOW -> MEDIUM
+[13:40:44] SECTOR-A threat: MEDIUM -> LOW
+[13:41:39] Loitering in SECTOR-A! ID:30
+[13:41:39] SECTOR-A threat: LOW -> MEDIUM
+[13:44:06] SECTOR-A threat: MEDIUM -> LOW
+[13:44:22] Loitering in SECTOR-A! ID:38
+[13:44:22] SECTOR-A threat: LOW -> MEDIUM
+[13:44:23] Loitering in SECTOR-A! ID:37
+[13:45:08] SECTOR-A threat: MEDIUM -> LOW
+[13:45:25] Loitering in SECTOR-A! ID:71
+[13:45:25] SECTOR-A threat: LOW -> MEDIUM
+[13:45:26] Loitering in SECTOR-A! ID:70
+[13:46:10] SECTOR-A threat: MEDIUM -> LOW
+[13:46:28] Loitering in SECTOR-A! ID:103
+[13:46:28] SECTOR-A threat: LOW -> MEDIUM
+[13:46:28] Loitering in SECTOR-A! ID:102

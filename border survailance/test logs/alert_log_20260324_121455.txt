@@ -1,0 +1,173 @@
+[12:16:11] Zone 'SECTOR-A' created
+[12:16:26] Loitering in SECTOR-A! ID:1
+[12:16:26] Loitering in SECTOR-A! ID:2
+[12:16:26] Loitering in SECTOR-A! ID:3
+[12:16:26] Loitering in SECTOR-A! ID:4
+[12:16:26] Loitering in SECTOR-A! ID:5
+[12:16:26] Loitering in SECTOR-A! ID:6
+[12:16:26] Loitering in SECTOR-A! ID:7
+[12:16:26] Loitering in SECTOR-A! ID:8
+[12:16:26] SECTOR-A threat: LOW -> MEDIUM
+[12:16:46] SECTOR-A threat: MEDIUM -> HIGH
+[12:16:48] SECTOR-A threat: HIGH -> MEDIUM
+[12:17:01] Loitering in SECTOR-A! ID:28
+[12:17:24] Loitering in SECTOR-A! ID:34
+[12:17:24] Loitering in SECTOR-A! ID:35
+[12:17:24] Loitering in SECTOR-A! ID:36
+[12:17:24] Loitering in SECTOR-A! ID:37
+[12:17:24] Loitering in SECTOR-A! ID:38
+[12:17:24] Loitering in SECTOR-A! ID:39
+[12:17:35] SECTOR-A threat: MEDIUM -> HIGH
+[12:17:36] SECTOR-A threat: HIGH -> MEDIUM
+[12:17:43] SECTOR-A threat: MEDIUM -> HIGH
+[12:17:44] SECTOR-A threat: HIGH -> MEDIUM
+[12:17:57] Loitering in SECTOR-A! ID:60
+[12:18:17] Loitering in SECTOR-A! ID:66
+[12:18:17] Loitering in SECTOR-A! ID:67
+[12:18:17] Loitering in SECTOR-A! ID:68
+[12:18:17] Loitering in SECTOR-A! ID:69
+[12:18:17] Loitering in SECTOR-A! ID:70
+[12:18:17] Loitering in SECTOR-A! ID:71
+[12:18:26] SECTOR-A threat: MEDIUM -> HIGH
+[12:18:26] SECTOR-A threat: HIGH -> MEDIUM
+[12:18:34] SECTOR-A threat: MEDIUM -> HIGH
+[12:18:35] SECTOR-A threat: HIGH -> MEDIUM
+[12:18:47] Loitering in SECTOR-A! ID:91
+[12:19:07] Loitering in SECTOR-A! ID:97
+[12:19:07] Loitering in SECTOR-A! ID:98
+[12:19:07] Loitering in SECTOR-A! ID:99
+[12:19:07] Loitering in SECTOR-A! ID:100
+[12:19:07] Loitering in SECTOR-A! ID:101
+[12:19:07] Loitering in SECTOR-A! ID:102
+[12:19:16] SECTOR-A threat: MEDIUM -> HIGH
+[12:19:16] SECTOR-A threat: HIGH -> MEDIUM
+[12:19:23] SECTOR-A threat: MEDIUM -> HIGH
+[12:19:24] SECTOR-A threat: HIGH -> MEDIUM
+[12:19:36] Loitering in SECTOR-A! ID:123
+[12:19:56] Loitering in SECTOR-A! ID:129
+[12:19:56] Loitering in SECTOR-A! ID:130
+[12:19:56] Loitering in SECTOR-A! ID:131
+[12:19:56] Loitering in SECTOR-A! ID:132
+[12:19:56] Loitering in SECTOR-A! ID:133
+[12:19:56] Loitering in SECTOR-A! ID:134
+[12:20:06] SECTOR-A threat: MEDIUM -> HIGH
+[12:20:06] SECTOR-A threat: HIGH -> MEDIUM
+[12:20:15] SECTOR-A threat: MEDIUM -> HIGH
+[12:20:17] SECTOR-A threat: HIGH -> MEDIUM
+[12:20:30] Loitering in SECTOR-A! ID:154
+[12:20:51] Loitering in SECTOR-A! ID:160
+[12:20:51] Loitering in SECTOR-A! ID:161
+[12:20:51] Loitering in SECTOR-A! ID:162
+[12:20:51] Loitering in SECTOR-A! ID:163
+[12:20:51] Loitering in SECTOR-A! ID:164
+[12:20:51] Loitering in SECTOR-A! ID:165
+[12:21:00] SECTOR-A threat: MEDIUM -> HIGH
+[12:21:00] SECTOR-A threat: HIGH -> MEDIUM
+[12:21:07] SECTOR-A threat: MEDIUM -> HIGH
+[12:21:08] SECTOR-A threat: HIGH -> MEDIUM
+[12:21:24] Loitering in SECTOR-A! ID:186
+[12:21:43] Loitering in SECTOR-A! ID:192
+[12:21:43] Loitering in SECTOR-A! ID:193
+[12:21:43] Loitering in SECTOR-A! ID:194
+[12:21:43] Loitering in SECTOR-A! ID:195
+[12:21:43] Loitering in SECTOR-A! ID:196
+[12:21:43] Loitering in SECTOR-A! ID:197
+[12:21:53] SECTOR-A threat: MEDIUM -> HIGH
+[12:21:53] SECTOR-A threat: HIGH -> MEDIUM
+[12:22:00] SECTOR-A threat: MEDIUM -> HIGH
+[12:22:01] SECTOR-A threat: HIGH -> MEDIUM
+[12:22:13] Loitering in SECTOR-A! ID:217
+[12:22:32] Loitering in SECTOR-A! ID:223
+[12:22:32] Loitering in SECTOR-A! ID:224
+[12:22:32] Loitering in SECTOR-A! ID:225
+[12:22:32] Loitering in SECTOR-A! ID:226
+[12:22:32] Loitering in SECTOR-A! ID:227
+[12:22:32] Loitering in SECTOR-A! ID:228
+[12:22:41] SECTOR-A threat: MEDIUM -> HIGH
+[12:22:41] SECTOR-A threat: HIGH -> MEDIUM
+[12:22:48] SECTOR-A threat: MEDIUM -> HIGH
+[12:22:49] SECTOR-A threat: HIGH -> MEDIUM
+[12:23:00] Loitering in SECTOR-A! ID:249
+[12:23:19] Loitering in SECTOR-A! ID:255
+[12:23:19] Loitering in SECTOR-A! ID:256
+[12:23:19] Loitering in SECTOR-A! ID:257
+[12:23:19] Loitering in SECTOR-A! ID:258
+[12:23:19] Loitering in SECTOR-A! ID:259
+[12:23:19] Loitering in SECTOR-A! ID:260
+[12:23:27] SECTOR-A threat: MEDIUM -> HIGH
+[12:23:28] SECTOR-A threat: HIGH -> MEDIUM
+[12:23:34] SECTOR-A threat: MEDIUM -> HIGH
+[12:23:35] SECTOR-A threat: HIGH -> MEDIUM
+[12:23:48] Loitering in SECTOR-A! ID:280
+[12:24:08] Loitering in SECTOR-A! ID:286
+[12:24:08] Loitering in SECTOR-A! ID:287
+[12:24:08] Loitering in SECTOR-A! ID:288
+[12:24:08] Loitering in SECTOR-A! ID:289
+[12:24:08] Loitering in SECTOR-A! ID:290
+[12:24:08] Loitering in SECTOR-A! ID:291
+[12:24:16] SECTOR-A threat: MEDIUM -> HIGH
+[12:24:17] SECTOR-A threat: HIGH -> MEDIUM
+[12:24:23] SECTOR-A threat: MEDIUM -> HIGH
+[12:24:24] SECTOR-A threat: HIGH -> MEDIUM
+[12:24:35] Loitering in SECTOR-A! ID:312
+[12:24:55] Loitering in SECTOR-A! ID:318
+[12:24:55] Loitering in SECTOR-A! ID:319
+[12:24:55] Loitering in SECTOR-A! ID:320
+[12:24:55] Loitering in SECTOR-A! ID:321
+[12:24:55] Loitering in SECTOR-A! ID:322
+[12:24:55] Loitering in SECTOR-A! ID:323
+[12:25:05] SECTOR-A threat: MEDIUM -> HIGH
+[12:25:05] SECTOR-A threat: HIGH -> MEDIUM
+[12:25:12] SECTOR-A threat: MEDIUM -> HIGH
+[12:25:13] SECTOR-A threat: HIGH -> MEDIUM
+[12:25:25] Loitering in SECTOR-A! ID:343
+[12:25:43] Loitering in SECTOR-A! ID:349
+[12:25:43] Loitering in SECTOR-A! ID:350
+[12:25:43] Loitering in SECTOR-A! ID:351
+[12:25:43] Loitering in SECTOR-A! ID:352
+[12:25:43] Loitering in SECTOR-A! ID:353
+[12:25:43] Loitering in SECTOR-A! ID:354
+[12:25:53] SECTOR-A threat: MEDIUM -> HIGH
+[12:25:53] SECTOR-A threat: HIGH -> MEDIUM
+[12:26:00] SECTOR-A threat: MEDIUM -> HIGH
+[12:26:01] SECTOR-A threat: HIGH -> MEDIUM
+[12:26:13] Loitering in SECTOR-A! ID:375
+[12:26:34] Loitering in SECTOR-A! ID:381
+[12:26:34] Loitering in SECTOR-A! ID:382
+[12:26:34] Loitering in SECTOR-A! ID:383
+[12:26:34] Loitering in SECTOR-A! ID:384
+[12:26:34] Loitering in SECTOR-A! ID:385
+[12:26:34] Loitering in SECTOR-A! ID:386
+[12:26:42] SECTOR-A threat: MEDIUM -> HIGH
+[12:26:42] SECTOR-A threat: HIGH -> MEDIUM
+[12:26:49] SECTOR-A threat: MEDIUM -> HIGH
+[12:26:50] SECTOR-A threat: HIGH -> MEDIUM
+[12:27:01] Loitering in SECTOR-A! ID:406
+[12:27:20] Loitering in SECTOR-A! ID:412
+[12:27:20] Loitering in SECTOR-A! ID:413
+[12:27:20] Loitering in SECTOR-A! ID:414
+[12:27:20] Loitering in SECTOR-A! ID:415
+[12:27:20] Loitering in SECTOR-A! ID:416
+[12:27:20] Loitering in SECTOR-A! ID:417
+[12:27:27] SECTOR-A threat: MEDIUM -> HIGH
+[12:27:28] SECTOR-A threat: HIGH -> MEDIUM
+[12:27:34] SECTOR-A threat: MEDIUM -> HIGH
+[12:27:35] SECTOR-A threat: HIGH -> MEDIUM
+[12:27:47] Loitering in SECTOR-A! ID:438
+[12:28:06] Loitering in SECTOR-A! ID:444
+[12:28:06] Loitering in SECTOR-A! ID:445
+[12:28:06] Loitering in SECTOR-A! ID:446
+[12:28:06] Loitering in SECTOR-A! ID:447
+[12:28:06] Loitering in SECTOR-A! ID:448
+[12:28:06] Loitering in SECTOR-A! ID:449
+[12:28:14] SECTOR-A threat: MEDIUM -> HIGH
+[12:28:14] SECTOR-A threat: HIGH -> MEDIUM
+[12:28:21] SECTOR-A threat: MEDIUM -> HIGH
+[12:28:22] SECTOR-A threat: HIGH -> MEDIUM
+[12:28:34] Loitering in SECTOR-A! ID:469
+[12:28:54] Loitering in SECTOR-A! ID:475
+[12:28:54] Loitering in SECTOR-A! ID:476
+[12:28:54] Loitering in SECTOR-A! ID:477
+[12:28:54] Loitering in SECTOR-A! ID:478
+[12:28:54] Loitering in SECTOR-A! ID:479
+[12:28:54] Loitering in SECTOR-A! ID:480

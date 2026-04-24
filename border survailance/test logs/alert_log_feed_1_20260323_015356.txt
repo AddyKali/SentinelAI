@@ -1,0 +1,22 @@
+[01:54:18] Zone 'Sector A' added
+[01:54:32] Loitering in Sector A! ID:2
+[01:54:32] Sector A threat: LOW->MEDIUM
+[01:54:43] Sector A threat: MEDIUM->LOW
+[01:54:56] Loitering in Sector A! ID:18
+[01:54:56] Sector A threat: LOW->MEDIUM
+[01:54:56] Sector A threat: MEDIUM->LOW
+[01:55:02] Loitering in Sector A! ID:21
+[01:55:02] Sector A threat: LOW->MEDIUM
+[01:55:11] Sector A threat: MEDIUM->LOW
+[01:55:11] Sector A threat: LOW->MEDIUM
+[01:55:12] Sector A threat: MEDIUM->LOW
+[01:55:12] Sector A threat: LOW->MEDIUM
+[01:55:12] Sector A threat: MEDIUM->LOW
+[01:55:13] Sector A threat: LOW->MEDIUM
+[01:55:14] Sector A threat: MEDIUM->LOW
+[01:55:14] Sector A threat: LOW->MEDIUM
+[01:55:15] Sector A threat: MEDIUM->LOW
+[01:55:15] Sector A threat: LOW->MEDIUM
+[01:55:16] Sector A threat: MEDIUM->LOW
+[01:55:16] Sector A threat: LOW->MEDIUM
+[01:55:20] Sector A threat: MEDIUM->LOW
