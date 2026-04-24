@@ -3,8 +3,12 @@ import numpy as np
 import time
 import base64
 import threading
+import sys
 from ultralytics import YOLO
 from server import shared_state, pending_commands
+
+# Force unbuffered output
+sys.stdout.reconfigure(line_buffering=True)
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  CONFIGURATION
@@ -19,17 +23,38 @@ PUSH_EVERY_N_FRAMES   = 2   # push frame to dashboard every N frames
 use_live      = False
 custom_source = None
 source_lock   = threading.Lock()
+stream_url_cache = {}  # cache: youtube_url -> stream_url
 
 def get_stream_url(url):
+    # Check cache first (valid for 30 min)
+    if url in stream_url_cache:
+        cached_url, cached_time = stream_url_cache[url]
+        if time.time() - cached_time < 1800:
+            print(f"Using cached stream URL for: {url}")
+            return cached_url
     try:
         import yt_dlp
         print(f"Fetching stream URL from: {url}")
-        ydl_opts = {'quiet': True, 'format': 'best[ext=mp4]/best'}
+        ydl_opts = {
+            'quiet': True,
+            'no_warnings': True,
+            'format': '93/best[ext=mp4][height<=720]/best[ext=mp4]/best',
+            'socket_timeout': 15,
+        }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
-            stream = info.get('url') or info['formats'][-1]['url']
-            print("Stream URL fetched successfully.")
-            return stream
+            stream = info.get('url')
+            if not stream and info.get('formats'):
+                for f in reversed(info['formats']):
+                    if f.get('url'):
+                        stream = f['url']
+                        break
+            if stream:
+                stream_url_cache[url] = (stream, time.time())
+                print("Stream URL fetched successfully.")
+                return stream
+            print("No stream URL found in video info.")
+            return None
     except Exception as e:
         print(f"Stream fetch failed: {e}")
         return None
